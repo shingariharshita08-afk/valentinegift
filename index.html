@@ -1,0 +1,259 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Be My Valentine 💖</title>
+
+<style>
+body{
+    margin:0;
+    font-family:'Comic Sans MS', cursive;
+    background:linear-gradient(135deg,#ff758c,#ff7eb3);
+    color:white;
+    text-align:center;
+    overflow-x:hidden;
+}
+.hidden{display:none;}
+button{
+    padding:12px 24px;
+    border:none;
+    border-radius:25px;
+    background:#ff004f;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+    margin:10px;
+}
+button:hover{transform:scale(1.1);}
+input{
+    padding:10px;
+    border-radius:12px;
+    border:none;
+    font-size:16px;
+}
+
+/* Floating hearts */
+.heart{
+    position:fixed;
+    bottom:-20px;
+    font-size:22px;
+    animation:float 6s linear infinite;
+}
+@keyframes float{
+    0%{opacity:0;}
+    50%{opacity:1;}
+    100%{opacity:0;transform:translateY(-100vh);}
+}
+
+/* Froggie game */
+.falling{
+    position:absolute;
+    font-size:32px;
+    animation:fall 4s linear;
+    cursor:pointer;
+}
+@keyframes fall{
+    from{top:-40px;}
+    to{top:100vh;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- MUSIC -->
+<audio autoplay loop>
+  <source src="song.mpeg" type="audio/mpeg">
+</audio>
+
+<!-- PASSWORD -->
+<div id="passwordScreen">
+    <img src="photo.jpeg" width="220" style="border-radius:20px;"><br><br>
+    <h2>Enter Password 💌</h2>
+    <input type="password" id="pass">
+    <button onclick="checkPass()">Enter</button>
+</div>
+
+<!-- CHOICE -->
+<div id="choiceScreen" class="hidden">
+    <h1>What would you like to play first baby? 💖</h1>
+    <button onclick="startGame()">Game 🐸</button>
+    <button onclick="startQuiz()">Quiz 💕</button>
+</div>
+
+<!-- GAME -->
+<div id="gameScreen" class="hidden">
+    <h2>Feed Your Froggie 🐸💖</h2>
+    <p id="scoreText">Hearts: 0</p>
+    <div style="font-size:80px;">🐸</div>
+</div>
+
+<div id="gameResult" class="hidden"></div>
+
+<!-- QUIZ -->
+<div id="quizScreen" class="hidden">
+    <h2 id="question"></h2>
+    <div id="options"></div>
+</div>
+
+<div id="quizResult" class="hidden"></div>
+
+<!-- VIDEO -->
+<div id="videoScreen" class="hidden">
+    <video width="320" controls>
+        <source src="video.mp4" type="video/mp4">
+    </video><br>
+    <button onclick="valentine()">Next 💘</button>
+</div>
+
+<!-- VALENTINE -->
+<div id="valentineScreen" class="hidden">
+    <h2>Will you be my Valentine? 💖</h2>
+    <button onclick="yes()">YES 💘</button>
+    <button id="noBtn">NO 😏</button>
+    <h3 id="noText"></h3>
+</div>
+
+<!-- FINAL MESSAGE -->
+<div id="finalMessage" class="hidden">
+<h1>
+I love you my Valentine 💖💞<br>
+I wanna stay with you forever my loveee 🥹💕<br>
+I wanna do each and everything with you bchaaa 💘<br>
+You’ll always be my first & last love 💍💖
+</h1>
+</div>
+
+<script>
+/* PASSWORD */
+function checkPass(){
+    if(pass.value==="12112023"){
+        passwordScreen.classList.add("hidden");
+        choiceScreen.classList.remove("hidden");
+    } else alert("Wrong password baby 😜");
+}
+
+/* FROGGIE GAME */
+let hearts=0, gameInt;
+
+function startGame(){
+    choiceScreen.classList.add("hidden");
+    gameResult.classList.add("hidden");
+    gameScreen.classList.remove("hidden");
+    hearts=0;
+    scoreText.innerText="Hearts: 0";
+    gameInt=setInterval(dropItem,700);
+    setTimeout(endGame,20000);
+}
+
+function dropItem(){
+    let item=document.createElement("div");
+    item.className="falling";
+    item.style.left=Math.random()*90+"vw";
+    let isHeart=Math.random()>0.4;
+    item.innerHTML=isHeart?"💖":"🪲";
+    item.onclick=()=>{
+        hearts+=isHeart?1:-1;
+        scoreText.innerText="Hearts: "+hearts;
+        item.remove();
+    }
+    document.body.appendChild(item);
+    setTimeout(()=>item.remove(),4000);
+}
+
+function endGame(){
+    clearInterval(gameInt);
+    gameScreen.classList.add("hidden");
+    gameResult.classList.remove("hidden");
+    if(hearts>=8){
+        gameResult.innerHTML=`<h1>🐸💋 Froggie is happy!</h1><button onclick="startQuiz()">Next ➡</button>`;
+    }else{
+        gameResult.innerHTML=`<h1>🐸👊 You failed!</h1><h2>Try again baby 😈</h2><button onclick="startGame()">Restart Game 🔁</button>`;
+    }
+}
+
+/* QUIZ */
+const quiz=[
+{q:"What will I choose first?",o:["Travel","Food","Makeup"],a:0},
+{q:"What I love the most when we are in bed?",o:["Your neck kisses","Your fingering","Your sucking"],a:1},
+{q:"What can comfort me most?",o:["You + Netflix","You + Beach","You + Bed"],a:2}
+];
+let qi=0, wrong=0;
+
+function startQuiz(){
+    choiceScreen.classList.add("hidden");
+    quizResult.classList.add("hidden");
+    quizScreen.classList.remove("hidden");
+    qi=0; wrong=0;
+    loadQ();
+}
+
+function loadQ(){
+    if(qi>=quiz.length){
+        quizScreen.classList.add("hidden");
+        videoScreen.classList.remove("hidden");
+        return;
+    }
+    question.innerText=quiz[qi].q;
+    options.innerHTML="";
+    quiz[qi].o.forEach((opt,i)=>{
+        let b=document.createElement("button");
+        b.innerText=opt;
+        b.onclick=()=>{
+            if(i!==quiz[qi].a) wrong++;
+            if(wrong>=2){
+                quizScreen.classList.add("hidden");
+                quizResult.classList.remove("hidden");
+                quizResult.innerHTML=`
+                <h1>👊💔 You don't know me well</h1>
+                <h2>You hurt me baby 😢</h2>
+                <button onclick="startQuiz()">Restart Quiz 🔁</button>`;
+            }else{
+                qi++; loadQ();
+            }
+        };
+        options.appendChild(b);
+    });
+}
+
+/* VALENTINE */
+function valentine(){
+    videoScreen.classList.add("hidden");
+    valentineScreen.classList.remove("hidden");
+}
+
+const noLines=[
+"How dare you 😤",
+"You don’t have that option 😏",
+"Think again baby 😈",
+"Nice try, still mine 💘"
+];
+
+noBtn.onmouseover=()=>{
+    noBtn.style.position="absolute";
+    noBtn.style.left=Math.random()*80+"vw";
+    noBtn.style.top=Math.random()*80+"vh";
+    noText.innerText=noLines[Math.floor(Math.random()*noLines.length)];
+}
+
+function yes(){
+    valentineScreen.classList.add("hidden");
+    finalMessage.classList.remove("hidden");
+    setTimeout(()=>finalMessage.style.display="none",20000);
+}
+
+/* Background hearts */
+setInterval(()=>{
+    let h=document.createElement("div");
+    h.className="heart";
+    h.innerHTML="💗";
+    h.style.left=Math.random()*100+"vw";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),6000);
+},300);
+</script>
+</body>
+</html>
